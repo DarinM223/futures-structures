@@ -49,7 +49,6 @@
   (fsemaphore-post (channel-empty-count chan))
   result)
 
-
 (module+ test
   (require rackunit)
   (require racket/match)
@@ -86,6 +85,7 @@
   (let* ([fchan (make-fchannel 3)]
          [future1 (future
                    (λ ()
+                     ; (sleep n) blocks so I have to do this
                      (mandelbrot 10000000 62 500 1000)
                      (fchannel-put! fchan 1)
                      (fchannel-put! fchan 2)
@@ -102,4 +102,5 @@
        (touch future1)
        (touch future2)
        (touch future3))
-     '(4 5 6))))
+     '(4 5 6))
+    (check-equal? (for/list ([_ 3]) (fchannel-take! fchan)) '(1 2 3))))
